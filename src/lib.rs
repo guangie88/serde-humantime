@@ -42,7 +42,7 @@
 //! # fn main() {}
 //! ```
 #![warn(missing_docs)]
-#![doc(html_root_url = "https://docs.rs/serde-humantime/0.1.2")]
+#![doc(html_root_url = "https://docs.rs/serde-humantime/0.1.3")]
 
 extern crate humantime;
 extern crate serde;
@@ -56,6 +56,7 @@ extern crate serde_json;
 use serde::de::{Deserialize, Deserializer, Error, Unexpected, Visitor};
 use std::fmt;
 use std::time::Duration;
+use std::ops::Deref;
 
 /// A wrapper type which implements `Deserialize` for types involving
 /// `Duration`.
@@ -68,6 +69,14 @@ impl<T> De<T> {
     /// Consumes the `De`, returning the inner value.
     pub fn into_inner(self) -> T {
         self.0
+    }
+}
+
+impl<T> Deref for De<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.0
     }
 }
 
@@ -154,6 +163,26 @@ mod test {
         let json = r#"{}"#;
         let foo = serde_json::from_str::<Foo>(json).unwrap();
         assert_eq!(foo.time.into_inner(), None);
+    }
+
+    #[test]
+    fn de_option_deref() {
+        #[derive(Deserialize)]
+        struct Foo {
+            time: De<Option<Duration>>,
+        }
+
+        let json = r#"{"time": "15 seconds"}"#;
+        let foo = serde_json::from_str::<Foo>(json).unwrap();
+        assert_eq!(*foo.time, Some(Duration::from_secs(15)));
+
+        let json = r#"{"time": null}"#;
+        let foo = serde_json::from_str::<Foo>(json).unwrap();
+        assert_eq!(*foo.time, None);
+
+        let json = r#"{}"#;
+        let foo = serde_json::from_str::<Foo>(json).unwrap();
+        assert_eq!(*foo.time, None);
     }
 
     #[test]
