@@ -1,6 +1,6 @@
 # serde-humantime
 
-[![Build Status](https://travis-ci.org/sfackler/serde-humantime.svg?branch=master)](https://travis-ci.org/sfackler/serde-humantime)
+[![Build Status](https://travis-ci.org/guangie88/serde-humantime.svg?branch=master)](https://travis-ci.org/guangie88/serde-humantime)
 
 [Documentation](https://docs.rs/serde-humantime)
 
